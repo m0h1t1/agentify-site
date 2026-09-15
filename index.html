@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agentify — Let AI agents act inside your systems, safely</title>
+<meta name="description" content="Agentify sits between your AI agent and your internal systems. Reads pass through. Writes wait for a human. Every action runs as the person who asked, and everything is recorded.">
+<meta property="og:title" content="Agentify">
+<meta property="og:description" content="A control plane that makes it safe for an AI agent to do something consequential inside your company's own systems.">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0B0D10;
+    --bg-2: #101319;
+    --line: rgba(255,255,255,.08);
+    --line-strong: rgba(255,255,255,.14);
+    --text: #E8EAF0;
+    --muted: #9AA3B2;
+    --dim: #6B7383;
+    --accent: #2F6BFF;
+    --accent-2: #7C9CFF;
+    --ok: #34C58A;
+    --warn: #F5B84B;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: Inter, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, Menlo, monospace; }
+
+  /* ambient background */
+  .glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(900px 500px at 50% -10%, rgba(47,107,255,.22), transparent 60%),
+      radial-gradient(600px 400px at 90% 20%, rgba(124,156,255,.08), transparent 60%);
+  }
+  .grid {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .35;
+    background-image:
+      linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 70%);
+  }
+  .wrap { position: relative; z-index: 1; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* nav */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    background: rgba(11,13,16,.7); border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -.02em; }
+  .brand img { width: 26px; height: 26px; }
+  .nav-links { display: flex; align-items: center; gap: 28px; font-size: 14px; color: var(--muted); }
+  .nav-links a:hover { color: var(--text); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+    font-weight: 600; font-size: 14px; border: 1px solid transparent; cursor: pointer;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 0 0 1px rgba(47,107,255,.4), 0 8px 30px rgba(47,107,255,.25); }
+  .btn-primary:hover { background: #3f78ff; }
+  .btn-ghost { background: transparent; border-color: var(--line-strong); color: var(--text); }
+  .btn-ghost:hover { border-color: rgba(255,255,255,.3); }
+  .btn-lg { padding: 14px 24px; font-size: 15px; border-radius: 12px; }
+
+  /* hero */
+  .hero { padding: 110px 0 70px; text-align: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px; border-radius: 999px;
+    border: 1px solid var(--line-strong); background: rgba(255,255,255,.03); font-size: 13px; color: var(--muted); margin-bottom: 26px;
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+  h1 {
+    font-size: clamp(38px, 6vw, 68px); line-height: 1.05; letter-spacing: -.035em; font-weight: 800; margin: 0 auto 22px; max-width: 900px;
+  }
+  h1 .hl {
+    background: linear-gradient(90deg, #fff 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 680px; margin: 0 auto 36px; }
+  .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* demo panel */
+  .panel {
+    margin: 64px auto 0; max-width: 860px; border: 1px solid var(--line-strong); border-radius: 20px;
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+    box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+    overflow: hidden; text-align: left;
+  }
+  .panel-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+  .panel-bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.12); display: inline-block; }
+  .panel-body { padding: 22px 24px; display: grid; gap: 14px; }
+  .msg { display: flex; gap: 12px; align-items: flex-start; }
+  .avatar { width: 28px; height: 28px; border-radius: 8px; flex: none; display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+  .avatar.u { background: rgba(255,255,255,.08); }
+  .avatar.a { background: rgba(47,107,255,.2); color: var(--accent-2); }
+  .bubble { font-size: 14.5px; color: var(--text); }
+  .bubble .dim { color: var(--muted); }
+  .step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); padding-left: 40px; }
+  .step .tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; font-weight: 600; letter-spacing: .02em; }
+  .tag.read { background: rgba(52,197,138,.15); color: var(--ok); }
+  .tag.hold { background: rgba(245,184,75,.15); color: var(--warn); }
+  .card {
+    margin-left: 40px; border: 1px solid rgba(245,184,75,.35); border-radius: 12px; padding: 14px 16px;
+    background: rgba(245,184,75,.05);
+  }
+  .card-h { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+  .card-h span:last-child { color: var(--warn); font-weight: 500; font-size: 12px; }
+  .card pre { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); white-space: pre-wrap; }
+  .card .row { display: flex; gap: 8px; }
+  .card .row .btn { padding: 7px 14px; font-size: 13px; border-radius: 8px; }
+  .btn-ok { background: var(--ok); color: #06261a; }
+
+  /* sections */
+  section { padding: 96px 0; }
+  .eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-2); margin-bottom: 14px; }
+  h2 { font-size: clamp(28px, 4vw, 42px); letter-spacing: -.03em; line-height: 1.12; margin: 0 0 16px; font-weight: 800; }
+  .sub { color: var(--muted); font-size: 17px; max-width: 640px; margin: 0; }
+  .center { text-align: center; }
+  .center .sub { margin: 0 auto; }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 48px; }
+  .c {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 26px;
+    background: rgba(255,255,255,.025); transition: border-color .2s ease, transform .2s ease;
+  }
+  .c:hover { border-color: var(--line-strong); transform: translateY(-2px); }
+  .c .n { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: rgba(47,107,255,.15); color: var(--accent-2); font-weight: 700; font-size: 14px; margin-bottom: 18px; }
+  .c h3 { margin: 0 0 8px; font-size: 18px; letter-spacing: -.02em; }
+  .c p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .split { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+  .principle {
+    border: 1px solid var(--line-strong); border-radius: 20px; padding: 32px;
+    background: linear-gradient(180deg, rgba(47,107,255,.10), rgba(47,107,255,.02));
+  }
+  .principle .big { font-size: 24px; font-weight: 700; letter-spacing: -.02em; line-height: 1.3; margin: 0 0 14px; }
+  .principle .big em { color: var(--accent-2); font-style: normal; }
+  .principle p { color: var(--muted); margin: 0; font-size: 15px; }
+  .list { display: grid; gap: 14px; margin-top: 28px; }
+  .li { display: flex; gap: 14px; align-items: flex-start; }
+  .li .ic { width: 24px; height: 24px; border-radius: 7px; background: rgba(52,197,138,.15); color: var(--ok); display: grid; place-items: center; flex: none; font-size: 13px; margin-top: 2px; }
+  .li b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .li span { color: var(--muted); font-size: 14.5px; }
+
+  .who { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 44px; }
+  .who .c h3 { font-size: 20px; }
+
+  /* form */
+  .form-wrap {
+    max-width: 640px; margin: 48px auto 0; border: 1px solid var(--line-strong); border-radius: 20px; padding: 36px; text-align: left;
+    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+    box-shadow: 0 30px 80px rgba(0,0,0,.4);
+  }
+  .f { display: grid; gap: 16px; }
+  .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  label { display: grid; gap: 7px; font-size: 13.5px; font-weight: 500; color: var(--muted); }
+  input, textarea, select {
+    width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line-strong);
+    background: rgba(0,0,0,.35); color: var(--text); font: inherit; font-size: 15px; outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(47,107,255,.2); }
+  textarea { min-height: 110px; resize: vertical; }
+  .f .btn { width: 100%; justify-content: center; margin-top: 6px; }
+  .fine { font-size: 12.5px; color: var(--dim); text-align: center; margin: 14px 0 0; }
+  .thanks { display: none; text-align: center; padding: 20px 0; }
+  .thanks .big { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .thanks p { color: var(--muted); margin: 0; }
+  .err { display: none; color: #ff7b7b; font-size: 13.5px; text-align: center; margin-top: 10px; }
+  .hp { position: absolute; left: -9999px; }
+
+  footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--dim); font-size: 13.5px; }
+  footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 860px) {
+    .cards, .who, .split, .f2 { grid-template-columns: 1fr; }
+    .split { gap: 32px; }
+    .nav-links a:not(.btn) { display: none; }
+    .hero { padding: 72px 0 48px; }
+    section { padding: 72px 0; }
+    .form-wrap { padding: 26px 20px; }
+    .card, .step { margin-left: 0; padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div><div class="grid"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#"><img src="logo.svg" alt=""> Agentify</a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#safety">Why it's safe</a>
+      <a href="#who">Who it's for</a>
+      <a class="btn btn-primary" href="#demo">Request a demo</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="pill"><span class="dot"></span> Self-hosted · Runs inside your network</div>
+    <h1>Let AI agents act inside your systems. <span class="hl">Safely.</span></h1>
+    <p class="lead">Agentify sits between the agent and your internal APIs. Reads pass through. Writes wait for a human. Every call runs as the person who asked, and everything is recorded.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary btn-lg" href="#demo">Request a demo</a>
+      <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
+    </div>
+
+    <div class="panel" aria-label="Example of a gated write">
+      <div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">claude · connected to agentify</span></div>
+      <div class="panel-body">
+        <div class="msg"><div class="avatar u">M</div><div class="bubble">Refund order <span class="mono">#48213</span> and update the customer's account balance.</div></div>
+        <div class="step"><span class="tag read">READ</span> <span class="mono">GET /orders/48213</span> · as marcus@company.com · passed through</div>
+        <div class="step"><span class="tag hold">HELD</span> <span class="mono">POST /refunds</span> · write detected · waiting for approval</div>
+        <div class="card">
+          <div class="card-h"><span>Approval required</span><span>expires in 14:52</span></div>
+          <pre class="mono">POST /refunds
+{ "order_id": 48213, "amount": 129.00, "reason": "customer_request" }</pre>
+          <div class="row"><button class="btn btn-ok" type="button">Approve</button><button class="btn btn-ghost" type="button">Reject</button></div>
+        </div>
+        <div class="msg"><div class="avatar a">A</div><div class="bubble"><span class="dim">Waiting on your approval. Nothing has changed yet.</span></div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="how">
+  <div class="wrap center">
+    <div class="eyebrow">How it works</div>
+    <h2>Point it at your API. That's the setup.</h2>
+    <p class="sub">Agentify reads your existing API documentation and generates the tools your agent can use. No custom integration code per system.</p>
+    <div class="cards">
+      <div class="c"><div class="n">1</div><h3>Connect a system</h3><p>Give Agentify your OpenAPI spec. It builds a catalog of every endpoint and turns them into tools an agent can call.</p></div>
+      <div class="c"><div class="n">2</div><h3>People sign in as themselves</h3><p>Employees connect through your existing SSO. Each person's credential is stored encrypted and used only for their own requests.</p></div>
+      <div class="c"><div class="n">3</div><h3>Reads flow, writes wait</h3><p>Anything that changes data is held and shown to a human with the exact payload. Approve it and it runs immediately. Every step is logged.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="safety" style="background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+  <div class="wrap">
+    <div class="split">
+      <div>
+        <div class="eyebrow">Why it's safe</div>
+        <h2>The agent never touches a credential.</h2>
+        <p class="sub">The model decides <em>which</em> action to take. A separate broker decides <em>whose</em> credential goes on the wire. The two are never in the same place.</p>
+        <div class="list">
+          <div class="li"><div class="ic">✓</div><div><b>Per-user identity</b><span>No shared robot account. Every call runs as the employee who asked.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Approvals bound to the exact request</b><span>We fingerprint the method, destination, and body. Approving one thing can't execute a different thing. Single-use, expires in 15 minutes.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Sandboxed code, no internet</b><span>When the agent writes code, it runs in a locked container that can reach the broker and nothing else.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Replayable audit log</b><span>Every tool call, held write, and approval, with secrets redacted. Answer "what did the agent do?" in seconds.</span></div></div>
+        </div>
+      </div>
+      <div class="principle">
+        <p class="big">If someone hides malicious instructions in data the agent reads, the worst case is a <em>different approved action</em> — still as the same person, still needing approval, still logged.</p>
+        <p>It cannot escalate to a more powerful credential, because it never had access to any credential in the first place. Prompt injection becomes boring instead of catastrophic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="who">
+  <div class="wrap center">
+    <div class="eyebrow">Who it's for</div>
+    <h2>Teams where a wrong click costs real money.</h2>
+    <p class="sub">Built for operations teams that handle money or sensitive records, where fixing a customer problem currently means asking an engineer to run something.</p>
+    <div class="who">
+      <div class="c"><h3>Fintech operations</h3><p>Payments, lending, cards. Refunds, account fixes, dispute handling, and collections — the manual work that queues up behind engineering.</p></div>
+      <div class="c"><h3>Healthcare billing</h3><p>Revenue cycle teams correcting claims and billing records all day, where an audit trail isn't a nice-to-have but a legal requirement.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="demo" style="background: var(--bg-2); border-top: 1px solid var(--line);">
+  <div class="wrap center">
+    <div class="eyebrow">Request a demo</div>
+    <h2>See it run against a real system.</h2>
+    <p class="sub">Tell us a little about your team and we'll set up a 30-minute walkthrough.</p>
+
+    <div class="form-wrap">
+      <!-- Replace YOUR_FORM_ID with the ID Formspree gives you. See README. -->
+      <form id="demoForm" class="f" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <input type="hidden" name="_subject" value="Agentify demo request">
+        <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+        <div class="f2">
+          <label>Name<input name="name" type="text" required autocomplete="name" placeholder="Jane Doe"></label>
+          <label>Work email<input name="email" type="email" required autocomplete="email" placeholder="jane@company.com"></label>
+        </div>
+        <div class="f2">
+          <label>Company<input name="company" type="text" required autocomplete="organization" placeholder="Acme"></label>
+          <label>Role<input name="role" type="text" placeholder="Head of Operations"></label>
+        </div>
+        <label>What systems would the agent need to touch?<input name="systems" type="text" placeholder="Stripe, internal admin API, Salesforce…"></label>
+        <label>Anything else<textarea name="message" placeholder="What's the manual process today?"></textarea></label>
+        <button class="btn btn-primary btn-lg" type="submit">Request a demo</button>
+        <div class="err" id="err">Something went wrong. Email us directly at <a href="mailto:mohika591@gmail.com" style="text-decoration:underline">mohika591@gmail.com</a>.</div>
+      </form>
+      <div class="thanks" id="thanks">
+        <div class="big">Got it — thanks.</div>
+        <p>We'll reach out within a day to set up a time.</p>
+      </div>
+      <p class="fine">No spam. We'll only use this to reply to you.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand" style="font-size:15px"><img src="logo.svg" alt=""> Agentify</div>
+    <div>© <span id="yr"></span> Agentify · <a href="mailto:mohika591@gmail.com">mohika591@gmail.com</a></div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // Submit via fetch so the visitor stays on the page. Falls back to a normal
+  // POST (Formspree's hosted thank-you page) if fetch fails for any reason.
+  const form = document.getElementById('demoForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = form.querySelector('button[type=submit]');
+    const err = document.getElementById('err');
+    err.style.display = 'none';
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) throw new Error('bad status');
+      form.style.display = 'none';
+      document.getElementById('thanks').style.display = 'block';
+    } catch (_) {
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Request a demo';
+    }
+  });
+</script>
+</body>
+</html>
