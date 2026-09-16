@@ -4,7 +4,7 @@ Static site for agentify. One `index.html`, no build step. Deployed on GitHub Pa
 
 ## Setup (once)
 
-1. **Formspree** — the demo form needs somewhere to send submissions.
+1. **Formspree**: the demo form needs somewhere to send submissions.
    - Go to https://formspree.io, sign up with mohika591@gmail.com, click **New form**.
    - Copy the form ID from the endpoint it gives you (`https://formspree.io/f/abcdwxyz` → `abcdwxyz`).
    - In `index.html`, replace `YOUR_FORM_ID` with that ID.
@@ -21,6 +21,6 @@ Edit `index.html`, commit, push. Pages redeploys automatically.
 
 ## Files
 
-- `index.html` — the whole site (CSS and JS inline)
-- `logo.svg` — the gate mark, white ink for dark backgrounds
-- `.nojekyll` — tells Pages to serve files as-is
+- `index.html`: the whole site (CSS and JS inline)
+- `logo.svg`: the gate mark, white ink for dark backgrounds
+- `.nojekyll`: tells Pages to serve files as-is

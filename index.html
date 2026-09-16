@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agentify — Let AI agents act inside your systems, safely</title>
+<title>Agentify: Let AI agents act inside your systems, safely</title>
 <meta name="description" content="Agentify sits between your AI agent and your internal systems. Reads pass through. Writes wait for a human. Every action runs as the person who asked, and everything is recorded.">
 <meta property="og:title" content="Agentify">
 <meta property="og:description" content="A control plane that makes it safe for an AI agent to do something consequential inside your company's own systems.">
@@ -185,6 +185,17 @@
   .err { display: none; color: #ff7b7b; font-size: 13.5px; text-align: center; margin-top: 10px; }
   .hp { position: absolute; left: -9999px; }
 
+
+  /* screenshots */
+  .shot { border: 1px solid var(--line-strong); border-radius: 16px; overflow: hidden; background: #0d1015;
+          box-shadow: 0 30px 80px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot-cap { margin-top: 14px; color: var(--muted); font-size: 14.5px; text-align: left; }
+  .shot-cap b { color: var(--text); }
+  .shots-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
+  .shot-main { margin-top: 44px; }
+  @media (max-width: 860px) { .shots-2 { grid-template-columns: 1fr; } }
+
   footer { border-top: 1px solid var(--line); padding: 36px 0; color: var(--dim); font-size: 13.5px; }
   footer .wrap { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
 
@@ -208,6 +219,7 @@
     <div class="nav-links">
       <a href="#how">How it works</a>
       <a href="#safety">Why it's safe</a>
+      <a href="#inside">Console</a>
       <a href="#who">Who it's for</a>
       <a class="btn btn-primary" href="#demo">Request a demo</a>
     </div>
@@ -270,8 +282,33 @@
         </div>
       </div>
       <div class="principle">
-        <p class="big">If someone hides malicious instructions in data the agent reads, the worst case is a <em>different approved action</em> — still as the same person, still needing approval, still logged.</p>
+        <p class="big">If someone hides malicious instructions in data the agent reads, the worst case is a <em>different approved action</em>, still as the same person, still needing approval, still logged.</p>
         <p>It cannot escalate to a more powerful credential, because it never had access to any credential in the first place. Prompt injection becomes boring instead of catastrophic.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section id="inside">
+  <div class="wrap center">
+    <div class="eyebrow">Inside the console</div>
+    <h2>Every action, on the record.</h2>
+    <p class="sub">This is the admin console, running against a demo backend. Nothing here is a mockup.</p>
+
+    <div class="shot-main">
+      <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · audit</span></div><img src="img/audit.png" alt="Audit replay: two reads pass through, a PATCH is held, approved, then executed" loading="lazy"></div>
+      <p class="shot-cap"><b>Audit replay.</b> One run, start to finish: two reads pass straight through, the write is held, a human approves it, it executes. Request and response bodies are stored with secrets redacted.</p>
+    </div>
+
+    <div class="shots-2">
+      <div>
+        <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · approvals</span></div><img src="img/approvals.png" alt="Approvals queue showing a pending PATCH with its exact payload" loading="lazy"></div>
+        <p class="shot-cap"><b>Approvals queue.</b> The exact method, path, and body the agent wants to send. Approve it and it runs. Single use, expires in 15 minutes.</p>
+      </div>
+      <div>
+        <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · integrations</span></div><img src="img/integrations.png" alt="Integrations page showing connected systems and how employees authenticate" loading="lazy"></div>
+        <p class="shot-cap"><b>Integrations.</b> Which systems the broker may call and how each person authenticates to them. Per-user SSO or a shared key, encrypted at rest.</p>
       </div>
     </div>
   </div>
@@ -283,7 +320,7 @@
     <h2>Teams where a wrong click costs real money.</h2>
     <p class="sub">Built for operations teams that handle money or sensitive records, where fixing a customer problem currently means asking an engineer to run something.</p>
     <div class="who">
-      <div class="c"><h3>Fintech operations</h3><p>Payments, lending, cards. Refunds, account fixes, dispute handling, and collections — the manual work that queues up behind engineering.</p></div>
+      <div class="c"><h3>Fintech operations</h3><p>Payments, lending, cards. Refunds, account fixes, dispute handling, and collections. The manual work that queues up behind engineering.</p></div>
       <div class="c"><h3>Healthcare billing</h3><p>Revenue cycle teams correcting claims and billing records all day, where an audit trail isn't a nice-to-have but a legal requirement.</p></div>
     </div>
   </div>
@@ -314,7 +351,7 @@
         <div class="err" id="err">Something went wrong. Email us directly at <a href="mailto:mohika591@gmail.com" style="text-decoration:underline">mohika591@gmail.com</a>.</div>
       </form>
       <div class="thanks" id="thanks">
-        <div class="big">Got it — thanks.</div>
+        <div class="big">Got it, thanks.</div>
         <p>We'll reach out within a day to set up a time.</p>
       </div>
       <p class="fine">No spam. We'll only use this to reply to you.</p>
