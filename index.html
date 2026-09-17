@@ -192,7 +192,7 @@
   .shot img { display: block; width: 100%; height: auto; }
   .shot-cap { margin-top: 14px; color: var(--muted); font-size: 14.5px; text-align: left; }
   .shot-cap b { color: var(--text); }
-  .shots-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; }
+  .shots-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 28px; align-items: start; }
   .shot-main { margin-top: 44px; }
   @media (max-width: 860px) { .shots-2 { grid-template-columns: 1fr; } }
 
@@ -230,7 +230,7 @@
   <div class="wrap">
     <div class="pill"><span class="dot"></span> Self-hosted · Runs inside your network</div>
     <h1>Let AI agents act inside your systems. <span class="hl">Safely.</span></h1>
-    <p class="lead">Agentify sits between the agent and your internal APIs. Reads pass through. Writes wait for a human. Every call runs as the person who asked, and everything is recorded.</p>
+    <p class="lead">Reads pass through. Writes wait for a human. Every call runs as the person who asked, and everything is logged.</p>
     <div class="cta-row">
       <a class="btn btn-primary btn-lg" href="#demo">Request a demo</a>
       <a class="btn btn-ghost btn-lg" href="#how">See how it works</a>
@@ -239,16 +239,15 @@
     <div class="panel" aria-label="Example of a gated write">
       <div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">claude · connected to agentify</span></div>
       <div class="panel-body">
-        <div class="msg"><div class="avatar u">M</div><div class="bubble">Refund order <span class="mono">#48213</span> and update the customer's account balance.</div></div>
+        <div class="msg"><div class="avatar u">M</div><div class="bubble">Refund order <span class="mono">#48213</span> and update the customer's balance.</div></div>
         <div class="step"><span class="tag read">READ</span> <span class="mono">GET /orders/48213</span> · as marcus@company.com · passed through</div>
-        <div class="step"><span class="tag hold">HELD</span> <span class="mono">POST /refunds</span> · write detected · waiting for approval</div>
+        <div class="step"><span class="tag hold">HELD</span> <span class="mono">POST /refunds</span> · write · waiting for approval</div>
         <div class="card">
           <div class="card-h"><span>Approval required</span><span>expires in 14:52</span></div>
           <pre class="mono">POST /refunds
-{ "order_id": 48213, "amount": 129.00, "reason": "customer_request" }</pre>
+{ "order_id": 48213, "amount": 129.00 }</pre>
           <div class="row"><button class="btn btn-ok" type="button">Approve</button><button class="btn btn-ghost" type="button">Reject</button></div>
         </div>
-        <div class="msg"><div class="avatar a">A</div><div class="bubble"><span class="dim">Waiting on your approval. Nothing has changed yet.</span></div></div>
       </div>
     </div>
   </div>
@@ -258,11 +257,10 @@
   <div class="wrap center">
     <div class="eyebrow">How it works</div>
     <h2>Point it at your API. That's the setup.</h2>
-    <p class="sub">Agentify reads your existing API documentation and generates the tools your agent can use. No custom integration code per system.</p>
     <div class="cards">
-      <div class="c"><div class="n">1</div><h3>Connect a system</h3><p>Give Agentify your OpenAPI spec. It builds a catalog of every endpoint and turns them into tools an agent can call.</p></div>
-      <div class="c"><div class="n">2</div><h3>People sign in as themselves</h3><p>Employees connect through your existing SSO. Each person's credential is stored encrypted and used only for their own requests.</p></div>
-      <div class="c"><div class="n">3</div><h3>Reads flow, writes wait</h3><p>Anything that changes data is held and shown to a human with the exact payload. Approve it and it runs immediately. Every step is logged.</p></div>
+      <div class="c"><div class="n">1</div><h3>Connect a system</h3><p>Hand it your OpenAPI spec. Every endpoint becomes a tool the agent can call.</p></div>
+      <div class="c"><div class="n">2</div><h3>People sign in as themselves</h3><p>Employees connect through your SSO. Each credential is used only for that person's requests.</p></div>
+      <div class="c"><div class="n">3</div><h3>Reads flow, writes wait</h3><p>Anything that changes data is held until a human approves it. Then it runs, and it's logged.</p></div>
     </div>
   </div>
 </section>
@@ -273,42 +271,41 @@
       <div>
         <div class="eyebrow">Why it's safe</div>
         <h2>The agent never touches a credential.</h2>
-        <p class="sub">The model decides <em>which</em> action to take. A separate broker decides <em>whose</em> credential goes on the wire. The two are never in the same place.</p>
+        <p class="sub">The model picks the action. A separate broker picks whose credential goes on the wire.</p>
         <div class="list">
-          <div class="li"><div class="ic">✓</div><div><b>Per-user identity</b><span>No shared robot account. Every call runs as the employee who asked.</span></div></div>
-          <div class="li"><div class="ic">✓</div><div><b>Approvals bound to the exact request</b><span>We fingerprint the method, destination, and body. Approving one thing can't execute a different thing. Single-use, expires in 15 minutes.</span></div></div>
-          <div class="li"><div class="ic">✓</div><div><b>Sandboxed code, no internet</b><span>When the agent writes code, it runs in a locked container that can reach the broker and nothing else.</span></div></div>
-          <div class="li"><div class="ic">✓</div><div><b>Replayable audit log</b><span>Every tool call, held write, and approval, with secrets redacted. Answer "what did the agent do?" in seconds.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Per-user identity</b><span>Every call runs as the employee who asked. No shared robot account.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Approvals bound to the request</b><span>Fingerprinted on method, path, and body. Single use. Expires in 15 minutes.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Sandboxed code, no internet</b><span>Agent-written code runs in a locked container that can reach the broker and nothing else.</span></div></div>
+          <div class="li"><div class="ic">✓</div><div><b>Replayable audit log</b><span>Every call, held write, and approval, with secrets redacted.</span></div></div>
         </div>
       </div>
       <div class="principle">
-        <p class="big">If someone hides malicious instructions in data the agent reads, the worst case is a <em>different approved action</em>, still as the same person, still needing approval, still logged.</p>
-        <p>It cannot escalate to a more powerful credential, because it never had access to any credential in the first place. Prompt injection becomes boring instead of catastrophic.</p>
+        <p class="big">Prompt injection becomes <em>boring.</em></p>
+        <p>Hidden instructions in data the agent reads can, at worst, trigger a different approved action. Same person, still needs approval, still logged. There is no credential to steal.</p>
       </div>
     </div>
   </div>
 </section>
 
-
 <section id="inside">
   <div class="wrap center">
     <div class="eyebrow">Inside the console</div>
     <h2>Every action, on the record.</h2>
-    <p class="sub">This is the admin console, running against a demo backend. Nothing here is a mockup.</p>
+    <p class="sub">The real admin console against a demo backend. No mockups.</p>
 
     <div class="shot-main">
-      <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · audit</span></div><img src="img/audit.png" alt="Audit replay: two reads pass through, a PATCH is held, approved, then executed" loading="lazy"></div>
-      <p class="shot-cap"><b>Audit replay.</b> One run, start to finish: two reads pass straight through, the write is held, a human approves it, it executes. Request and response bodies are stored with secrets redacted.</p>
+      <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · audit</span></div><img src="img/audit.png" alt="Audit replay of one run" loading="lazy"></div>
+      <p class="shot-cap"><b>Audit replay.</b> One run, start to finish: two reads pass through, the write is held, approved, executed.</p>
     </div>
 
     <div class="shots-2">
       <div>
-        <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · approvals</span></div><img src="img/approvals.png" alt="Approvals queue showing a pending PATCH with its exact payload" loading="lazy"></div>
-        <p class="shot-cap"><b>Approvals queue.</b> The exact method, path, and body the agent wants to send. Approve it and it runs. Single use, expires in 15 minutes.</p>
+        <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · approvals</span></div><img src="img/approvals.png" alt="A pending approval with its exact payload" loading="lazy"></div>
+        <p class="shot-cap"><b>Approvals queue.</b> The exact request the agent wants to send. Approve it and it runs.</p>
       </div>
       <div>
-        <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · integrations</span></div><img src="img/integrations.png" alt="Integrations page showing connected systems and how employees authenticate" loading="lazy"></div>
-        <p class="shot-cap"><b>Integrations.</b> Which systems the broker may call and how each person authenticates to them. Per-user SSO or a shared key, encrypted at rest.</p>
+        <div class="shot"><div class="panel-bar"><i></i><i></i><i></i><span style="margin-left:6px">console · integrations</span></div><img src="img/integrations.png" alt="Connected systems and how employees authenticate" loading="lazy"></div>
+        <p class="shot-cap"><b>Integrations.</b> Which systems the broker may call, and how each person authenticates.</p>
       </div>
     </div>
   </div>
@@ -318,10 +315,10 @@
   <div class="wrap center">
     <div class="eyebrow">Who it's for</div>
     <h2>Teams where a wrong click costs real money.</h2>
-    <p class="sub">Built for operations teams that handle money or sensitive records, where fixing a customer problem currently means asking an engineer to run something.</p>
+    <p class="sub">Ops teams handling money or sensitive records, where fixing a customer problem means asking an engineer.</p>
     <div class="who">
-      <div class="c"><h3>Fintech operations</h3><p>Payments, lending, cards. Refunds, account fixes, dispute handling, and collections. The manual work that queues up behind engineering.</p></div>
-      <div class="c"><h3>Healthcare billing</h3><p>Revenue cycle teams correcting claims and billing records all day, where an audit trail isn't a nice-to-have but a legal requirement.</p></div>
+      <div class="c"><h3>Fintech operations</h3><p>Refunds, account fixes, disputes, collections.</p></div>
+      <div class="c"><h3>Healthcare billing</h3><p>Claim corrections and billing fixes, where an audit trail is a legal requirement.</p></div>
     </div>
   </div>
 </section>
@@ -330,10 +327,9 @@
   <div class="wrap center">
     <div class="eyebrow">Request a demo</div>
     <h2>See it run against a real system.</h2>
-    <p class="sub">Tell us a little about your team and we'll set up a 30-minute walkthrough.</p>
+    <p class="sub">A 30-minute walkthrough. Tell us a bit about your team.</p>
 
     <div class="form-wrap">
-      <!-- Replace mdekopjb with the ID Formspree gives you. See README. -->
       <form id="demoForm" class="f" action="https://formspree.io/f/mdekopjb" method="POST">
         <input type="hidden" name="_subject" value="Agentify demo request">
         <input class="hp" type="text" name="_gotcha" tabindex="-1" autocomplete="off">
@@ -341,20 +337,17 @@
           <label>Name<input name="name" type="text" required autocomplete="name" placeholder="Jane Doe"></label>
           <label>Work email<input name="email" type="email" required autocomplete="email" placeholder="jane@company.com"></label>
         </div>
-        <div class="f2">
-          <label>Company<input name="company" type="text" required autocomplete="organization" placeholder="Acme"></label>
-          <label>Role<input name="role" type="text" placeholder="Head of Operations"></label>
-        </div>
-        <label>What systems would the agent need to touch?<input name="systems" type="text" placeholder="Stripe, internal admin API, Salesforce…"></label>
-        <label>Anything else<textarea name="message" placeholder="What's the manual process today?"></textarea></label>
+        <label>Company<input name="company" type="text" required autocomplete="organization" placeholder="Acme"></label>
+        <label>What systems would the agent touch?<input name="systems" type="text" placeholder="Stripe, internal admin API, Salesforce"></label>
+        <label>What's the manual process today?<textarea name="message"></textarea></label>
         <button class="btn btn-primary btn-lg" type="submit">Request a demo</button>
-        <div class="err" id="err">Something went wrong. Email us directly at <a href="mailto:mohika591@gmail.com" style="text-decoration:underline">mohika591@gmail.com</a>.</div>
+        <div class="err" id="err">Something went wrong. Email <a href="mailto:mohika591@gmail.com" style="text-decoration:underline">mohika591@gmail.com</a> instead.</div>
       </form>
       <div class="thanks" id="thanks">
         <div class="big">Got it, thanks.</div>
-        <p>We'll reach out within a day to set up a time.</p>
+        <p>We'll reach out within a day.</p>
       </div>
-      <p class="fine">No spam. We'll only use this to reply to you.</p>
+      <p class="fine">No spam. We only use this to reply.</p>
     </div>
   </div>
 </section>
